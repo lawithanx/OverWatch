@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<satellite_feed>
+    <timestamp>2026-05-31T00:30:00Z</timestamp>
+    <environment>
+        <sector>Sector 4 (Overberg Mountainous Variant)</sector>
+        <terrain_condition>Severe (High Elevation, Low Visibility)</terrain_condition>
+        <signal_status>Intermittent - Satellite Relay Active</signal_status>
+    </environment>
+    <agents>
+        <agent id="A-01">
+            <codename>Viper</codename>
+            <status>Active</status>
+            <latitude>-34.3412</latitude>
+            <longitude>19.0143</longitude>
+            <elevation>412</elevation>
+            <heartrate>72</heartrate>
+            <comms_status>Nominal</comms_status>
+        </agent>
+        <agent id="A-02">
+            <codename>Ghost</codename>
+            <status>Standby</status>
+            <latitude>-34.3456</latitude>
+            <longitude>19.0211</longitude>
+            <elevation>89</elevation>
+            <heartrate>65</heartrate>
+            <comms_status>Silent</comms_status>
+        </agent>
+        <agent id="A-03">
+            <codename>Sierra</codename>
+            <status>Engaged</status>
+            <latitude>-34.3398</latitude>
+            <longitude>18.9985</longitude>
+            <elevation>654</elevation>
+            <heartrate>118</heartrate>
+            <comms_status>Degraded</comms_status>
+        </agent>
+    </agents>
+</satellite_feed>

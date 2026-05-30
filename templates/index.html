@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Overwatch Terminal Interface</title>
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: monospace;
+            background-color: #0b0f12;
+            color: #00ff66;
+            margin: 0;
+            padding: 24px;
+        }
+
+        .header {
+            border-bottom: 2px solid #1f3d24;
+            padding-bottom: 16px;
+            margin-bottom: 24px;
+        }
+
+        h1 {
+            color: #ffffff;
+            margin: 0 0 8px 0;
+            font-size: 20pt;
+            letter-spacing: 2px;
+        }
+
+        .meta-container {
+            display: block;
+            border: 1px dashed #1f3d24;
+            background-color: #0e141a;
+            padding: 12px;
+            margin-bottom: 24px;
+        }
+
+        .meta-row {
+            display: block;
+            margin-bottom: 4px;
+            font-size: 10pt;
+        }
+
+        .meta-row span {
+            color: #ffffff;
+        }
+
+        .section-title {
+            color: #8b949e;
+            font-size: 11pt;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+        }
+
+        .grid {
+            display: block;
+        }
+
+        .card {
+            background-color: #0e141b;
+            border: 1px solid #1f3d24;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        .card-header {
+            border-bottom: 1px solid #1f3d24;
+            padding-bottom: 8px;
+            margin-bottom: 12px;
+        }
+
+        .card h3 {
+            margin: 0;
+            color: #ffffff;
+            font-size: 12pt;
+        }
+
+        .metrics-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .metrics-table td {
+            padding: 4px 0;
+            font-size: 10pt;
+        }
+
+        .metrics-table td.label {
+            color: #8b949e;
+            width: 40%;
+        }
+
+        .metrics-table td.value {
+            color: #ffffff;
+            text-align: right;
+        }
+
+        .status-active {
+            color: #00ff66 !important;
+            font-weight: bold;
+        }
+
+        .status-standby {
+            color: #ffcc00 !important;
+        }
+
+        .status-engaged {
+            color: #ff3333 !important;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="header">
+        <h1>OVERWATCH SYSTEM MONITOR</h1>
+        <div>SYSTEM STATUS: ONLINE // OPERATIONAL FEED LIVE</div>
+    </div>
+
+    <div class="section-title">Operational Theatre Context</div>
+    <div class="meta-container">
+        <div class="meta-row">SATELLITE SYNC: <span id="sync-time">CONNECTING...</span></div>
+        <div class="meta-row">CURRENT SECTOR: <span id="env-sector">PENDING UNLINK...</span></div>
+        <div class="meta-row">TERRAIN CONDITION: <span id="env-terrain">PENDING UNLINK...</span></div>
+        <div class="meta-row">SIGNAL INTEGRITY: <span id="env-signal">PENDING UNLINK...</span></div>
+    </div>
+
+    <div class="section-title">Live Info on Asset Whereabouts</div>
+    <div id="agent-grid" class="grid">
+    </div>
+
+    <script>
+        async function fetchTelemetry() {
+            try {
+                const response = await fetch('/api/telemetry');
+                const data = await response.json();
+
+                if (data.error) {
+                    console.error("Telemetry Error: " + data.error);
+                    return;
+                }
+
+                document.getElementById('sync-time').innerText = data.timestamp;
+                document.getElementById('env-sector').innerText = data.environment.sector;
+                document.getElementById('env-terrain').innerText = data.environment.terrain_condition;
+                document.getElementById('env-signal').innerText = data.environment.signal_status;
+
+                const grid = document.getElementById('agent-grid');
+                grid.innerHTML = '';
+
+                data.agents.forEach(agent => {
+                    const statusClass = `status-${agent.status.toLowerCase()}`;
+                    const card = document.createElement('div');
+                    card.className = 'card';
+                    card.innerHTML = `
+                        <div class="card-header">
+                            <h3>ASSET: ${agent.codename} // ID: ${agent.id}</h3>
+                        </div>
+                        <table class="metrics-table">
+                            <tr>
+                                <td class="label">TACTICAL STATUS</td>
+                                <td class="value ${statusClass}">${agent.status.toUpperCase()}</td>
+                            </tr>
+                            <tr>
+                                <td class="label">GEOSPATIAL LAT</td>
+                                <td class="value">${agent.latitude}</td>
+                            </tr>
+                            <tr>
+                                <td class="label">GEOSPATIAL LONG</td>
+                                <td class="value">${agent.longitude}</td>
+                            </tr>
+                            <tr>
+                                <td class="label">ELEVATION (AMSL)</td>
+                                <td class="value">${agent.elevation} M</td>
+                            </tr>
+                            <tr>
+                                <td class="label">BIOMETRIC PULSE</td>
+                                <td class="value">${agent.heartrate} BPM</td>
+                            </tr>
+                            <tr>
+                                <td class="label">COMMS INTEGRITY</td>
+                                <td class="value">${agent.comms_status.toUpperCase()}</td>
+                            </tr>
+                        </table>
+                    `;
+                    grid.appendChild(card);
+                });
+
+            } catch (err) {
+                console.error("Critical error connecting to tracking core API:", err);
+            }
+        }
+
+        fetchTelemetry();
+        setInterval(fetchTelemetry, 3000);
+    </script>
+</body>
+
+</html>
